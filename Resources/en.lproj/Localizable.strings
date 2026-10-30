@@ -1,0 +1,94 @@
+"app.title" = "Music";
+
+"player.nothing_playing" = "Nothing playing";
+"player.now_playing" = "Now playing";
+"player.unknown_artist" = "Unknown artist";
+"player.unknown_album" = "Unknown Album";
+"player.shuffle" = "Shuffle";
+"player.repeat" = "Repeat";
+"player.previous" = "Previous";
+"player.next" = "Next";
+"player.play" = "Play";
+"player.pause" = "Pause";
+"player.play_all" = "Play all";
+"player.progress" = "Playback position";
+"player.sleep_timer" = "Sleep Timer";
+
+"library.empty.title" = "Library is empty";
+"library.empty.message" = "Tap the folder icon in the top right to choose a music folder in the Files app.";
+"library.empty.folder" = "No supported audio files were found in the selected folder.";
+"library.empty.hidden" = "All tracks are hidden. Tap ⋯ at the top and select \"Show Removed\" to bring them back.";
+"library.menu" = "Library menu";
+"library.menu.refresh" = "Refresh";
+"library.menu.show_hidden" = "Show Removed";
+"library.menu.hide_hidden" = "Hide Removed";
+"library.menu.restore_all" = "Restore All";
+"library.import_folder" = "Import music folder";
+"library.clear" = "Clear Library";
+"library.clear.title" = "Clear library?";
+"library.clear.message" = "The folder will be disconnected. Audio files on disk will not be deleted.";
+
+"track.hide" = "Hide";
+"track.unhide" = "Restore";
+"track.cloud_only" = "In iCloud, not downloaded";
+
+"queue.title" = "Queue";
+"queue.empty" = "The queue is empty. Play a track to start a queue.";
+"queue.clear_upcoming" = "Clear upcoming tracks";
+
+"settings.language" = "Language";
+"settings.language.system" = "System";
+
+"error.title" = "Error";
+"error.folder_access" = "Could not access folder";
+"error.playback" = "Could not play file";
+"error.cloud_file" = "File is in iCloud and has not been downloaded";
+"error.metadata" = "Could not read metadata";
+"error.cache_save" = "Could not save metadata cache";
+"error.invalid_folder" = "Folder no longer available";
+"error.audio_session" = "Could not configure audio playback";
+
+"action.ok" = "OK";
+"action.done" = "Done";
+"action.cancel" = "Cancel";
+"action.close" = "Close";
+"action.clear_search" = "Clear search";
+
+"search.prompt" = "Search songs, artists, albums";
+"search.no_results" = "No results";
+
+"view.title" = "View";
+"view.songs" = "Songs";
+"view.albums" = "Albums";
+"view.artists" = "Artists";
+
+"recent.title" = "Recently Played";
+
+"context.play_next" = "Play Next";
+"context.add_queue" = "Add to Queue";
+"context.info" = "Info";
+
+"info.title" = "Track Info";
+"info.track_title" = "Title";
+"info.section.metadata" = "Metadata";
+"info.section.file" = "File";
+"info.artist" = "Artist";
+"info.album" = "Album";
+"info.album_artist" = "Album Artist";
+"info.track_number" = "Track number";
+"info.disc_number" = "Disc number";
+"info.icloud" = "iCloud";
+"info.duration" = "Duration";
+"info.file_path" = "File";
+"info.file_size" = "Size";
+"info.format" = "Format";
+"info.mod_date" = "Modified";
+
+"scan.phase.collecting" = "Collecting files…";
+"scan.phase.reading" = "Reading metadata…";
+
+"sleep.off" = "Off";
+"sleep.15" = "15 minutes";
+"sleep.30" = "30 minutes";
+"sleep.60" = "60 minutes";
+"sleep.end_of_track" = "End of track";

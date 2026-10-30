@@ -1,0 +1,94 @@
+"app.title" = "Музыка";
+
+"player.nothing_playing" = "Ничего не играет";
+"player.now_playing" = "Сейчас играет";
+"player.unknown_artist" = "Неизвестный исполнитель";
+"player.unknown_album" = "Неизвестный альбом";
+"player.shuffle" = "Перемешать";
+"player.repeat" = "Повтор";
+"player.previous" = "Предыдущий";
+"player.next" = "Следующий";
+"player.play" = "Играть";
+"player.pause" = "Пауза";
+"player.play_all" = "Играть всё";
+"player.progress" = "Позиция воспроизведения";
+"player.sleep_timer" = "Таймер сна";
+
+"library.empty.title" = "Библиотека пуста";
+"library.empty.message" = "Нажмите на иконку папки вверху, чтобы выбрать папку с музыкой в приложении «Файлы».";
+"library.empty.folder" = "В выбранной папке не найдено поддерживаемых аудиофайлов.";
+"library.empty.hidden" = "Все треки скрыты. Нажмите ⋯ вверху и выберите «Показать удалённые», чтобы вернуть их.";
+"library.menu" = "Меню библиотеки";
+"library.menu.refresh" = "Обновить";
+"library.menu.show_hidden" = "Показать удалённые";
+"library.menu.hide_hidden" = "Скрыть удалённые";
+"library.menu.restore_all" = "Восстановить все";
+"library.import_folder" = "Импортировать папку с музыкой";
+"library.clear" = "Очистить библиотеку";
+"library.clear.title" = "Очистить библиотеку?";
+"library.clear.message" = "Папка будет отключена. Аудиофайлы на диске не будут удалены.";
+
+"track.hide" = "Скрыть";
+"track.unhide" = "Вернуть";
+"track.cloud_only" = "В iCloud, не загружено";
+
+"queue.title" = "Очередь";
+"queue.empty" = "Очередь пуста. Включите трек, чтобы начать очередь.";
+"queue.clear_upcoming" = "Очистить следующие треки";
+
+"settings.language" = "Язык";
+"settings.language.system" = "Системный";
+
+"error.title" = "Ошибка";
+"error.folder_access" = "Не удалось получить доступ к папке";
+"error.playback" = "Не удалось воспроизвести файл";
+"error.cloud_file" = "Файл находится в iCloud и не загружен";
+"error.metadata" = "Не удалось прочитать метаданные";
+"error.cache_save" = "Не удалось сохранить кэш метаданных";
+"error.invalid_folder" = "Папка больше недоступна";
+"error.audio_session" = "Не удалось настроить аудиовоспроизведение";
+
+"action.ok" = "OK";
+"action.done" = "Готово";
+"action.cancel" = "Отмена";
+"action.close" = "Закрыть";
+"action.clear_search" = "Сбросить поиск";
+
+"search.prompt" = "Поиск треков, исполнителей, альбомов";
+"search.no_results" = "Ничего не найдено";
+
+"view.title" = "Вид";
+"view.songs" = "Песни";
+"view.albums" = "Альбомы";
+"view.artists" = "Артисты";
+
+"recent.title" = "Недавние";
+
+"context.play_next" = "Играть следующим";
+"context.add_queue" = "В очередь";
+"context.info" = "Информация";
+
+"info.title" = "Информация";
+"info.track_title" = "Название";
+"info.section.metadata" = "Метаданные";
+"info.section.file" = "Файл";
+"info.artist" = "Исполнитель";
+"info.album" = "Альбом";
+"info.album_artist" = "Исполнитель альбома";
+"info.track_number" = "Номер трека";
+"info.disc_number" = "Номер диска";
+"info.icloud" = "iCloud";
+"info.duration" = "Длительность";
+"info.file_path" = "Файл";
+"info.file_size" = "Размер";
+"info.format" = "Формат";
+"info.mod_date" = "Изменён";
+
+"scan.phase.collecting" = "Сбор файлов…";
+"scan.phase.reading" = "Чтение метаданных…";
+
+"sleep.off" = "Выкл";
+"sleep.15" = "15 минут";
+"sleep.30" = "30 минут";
+"sleep.60" = "60 минут";
+"sleep.end_of_track" = "В конце трека";
