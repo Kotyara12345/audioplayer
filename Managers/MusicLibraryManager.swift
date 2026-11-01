@@ -79,32 +79,37 @@ final class MusicLibraryManager {
         observerDebounceTask?.cancel()
         observerDebounceTask = nil
 
-        let standardizedURL = url.standardizedFileURL
-        let isSameFolder = folderURL?.standardizedFileURL.path == standardizedURL.path
-
-        let accessStarted = standardizedURL.startAccessingSecurityScopedResource()
+        // Keep the picker's URL as is: deriving a new URL may drop the sandbox
+        // extension that the document picker attached to it.
+        let accessStarted = url.startAccessingSecurityScopedResource()
         // A URL inside the app container needs no security scope and may return
         // false even though the folder is readable.
-        guard accessStarted || FileManager.default.isReadableFile(atPath: standardizedURL.path) else {
+        guard accessStarted || FileManager.default.isReadableFile(atPath: url.path) else {
+            log.error(
+                "Folder access denied, scope: \(accessStarted, privacy: .public), "
+                    + "path: \(url.path, privacy: .private)"
+            )
             lastError = .folderAccessDenied
             return
         }
 
         var isDirectory: ObjCBool = false
-        guard FileManager.default.fileExists(atPath: standardizedURL.path, isDirectory: &isDirectory),
+        guard FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory),
               isDirectory.boolValue else {
             if accessStarted {
-                standardizedURL.stopAccessingSecurityScopedResource()
+                url.stopAccessingSecurityScopedResource()
             }
             lastError = .invalidFolder
             return
         }
 
+        let isSameFolder = folderURL?.standardizedFileURL.path == url.standardizedFileURL.path
+
         lastError = nil
         pendingRefresh = false
         stopObserving()
         releaseFolderAccess()
-        folderURL = standardizedURL
+        folderURL = url
         isAccessingSecurityScope = accessStarted
 
         if !isSameFolder {
@@ -114,9 +119,9 @@ final class MusicLibraryManager {
             resetTrackState()
         }
 
-        saveBookmark(standardizedURL)
-        startObserving(folderURL: standardizedURL)
-        startBackgroundScan(at: standardizedURL)
+        saveBookmark(url)
+        startObserving(folderURL: url)
+        startBackgroundScan(at: url)
     }
 
     func clearLibrary() {
@@ -324,7 +329,7 @@ final class MusicLibraryManager {
                 return
             }
 
-            folderURL = url.standardizedFileURL
+            folderURL = url
             isAccessingSecurityScope = accessStarted
             if isStale {
                 saveBookmark(url)
@@ -370,35 +375,34 @@ final class MusicLibraryManager {
 
     private func folderMoved(to newURL: URL) {
         guard let currentURL = folderURL else { return }
-        let standardizedURL = newURL.standardizedFileURL
-        guard standardizedURL.path != currentURL.standardizedFileURL.path else {
+        guard newURL.standardizedFileURL.path != currentURL.standardizedFileURL.path else {
             scheduleObservedRefresh()
             return
         }
 
-        let accessStarted = standardizedURL.startAccessingSecurityScopedResource()
-        guard accessStarted || FileManager.default.isReadableFile(atPath: standardizedURL.path) else {
+        let accessStarted = newURL.startAccessingSecurityScopedResource()
+        guard accessStarted || FileManager.default.isReadableFile(atPath: newURL.path) else {
             lastError = .folderAccessDenied
             return
         }
 
         var isDirectory: ObjCBool = false
-        guard FileManager.default.fileExists(atPath: standardizedURL.path, isDirectory: &isDirectory),
+        guard FileManager.default.fileExists(atPath: newURL.path, isDirectory: &isDirectory),
               isDirectory.boolValue else {
             if accessStarted {
-                standardizedURL.stopAccessingSecurityScopedResource()
+                newURL.stopAccessingSecurityScopedResource()
             }
             lastError = .invalidFolder
             return
         }
 
         releaseFolderAccess()
-        folderURL = standardizedURL
+        folderURL = newURL
         isAccessingSecurityScope = accessStarted
-        saveBookmark(standardizedURL)
+        saveBookmark(newURL)
         observerDebounceTask?.cancel()
         observerDebounceTask = nil
-        startBackgroundScan(at: standardizedURL)
+        startBackgroundScan(at: newURL)
     }
 
     private func scheduleObservedRefresh() {
@@ -421,7 +425,6 @@ final class MusicLibraryManager {
         scanSnapshot = allTracks
         scanGeneration &+= 1
         let generation = scanGeneration
-        let standardizedURL = url.standardizedFileURL
 
         lastError = nil
         lastScanFinishedAt = nil
@@ -434,7 +437,7 @@ final class MusicLibraryManager {
 
         scanTask = Task { @MainActor [weak self] in
             guard let self else { return }
-            await self.runScan(at: standardizedURL, generation: generation)
+            await self.runScan(at: url, generation: generation)
         }
     }
 

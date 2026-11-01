@@ -782,16 +782,6 @@ final class PlayerEngine: NSObject {
             info[MPNowPlayingInfoPropertyPlaybackQueueIndex] = max(0, currentIndex)
         }
 
-        info[MPNowPlayingInfoPropertyShuffleMode] = isShuffled
-            ? MPShuffleType.items.rawValue
-            : MPShuffleType.off.rawValue
-
-        switch repeatMode {
-        case .off: info[MPNowPlayingInfoPropertyRepeatMode] = MPRepeatType.off.rawValue
-        case .one: info[MPNowPlayingInfoPropertyRepeatMode] = MPRepeatType.one.rawValue
-        case .all: info[MPNowPlayingInfoPropertyRepeatMode] = MPRepeatType.all.rawValue
-        }
-
         if let artwork = nowPlayingArtwork {
             info[MPMediaItemPropertyArtwork] = artwork
         }
@@ -896,5 +886,11 @@ final class PlayerEngine: NSObject {
         center.changePlaybackPositionCommand.isEnabled = currentTrack != nil
         center.changeShuffleModeCommand.isEnabled = currentTrack != nil
         center.changeRepeatModeCommand.isEnabled = currentTrack != nil
+        center.changeShuffleModeCommand.currentShuffleType = isShuffled ? .items : .off
+        switch repeatMode {
+        case .off: center.changeRepeatModeCommand.currentRepeatType = .off
+        case .one: center.changeRepeatModeCommand.currentRepeatType = .one
+        case .all: center.changeRepeatModeCommand.currentRepeatType = .all
+        }
     }
 }

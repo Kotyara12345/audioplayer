@@ -159,7 +159,7 @@ final class MetadataCache: MetadataCacheProtocol {
 
     private func load(generation: Int) async {
         let url = cacheURL
-        let decoded = await Task.detached(priority: .utility) {
+        let decoded = await Task.detached(priority: .utility) { () -> [String: CachedTrackInfo]? in
             guard let data = try? Data(contentsOf: url) else { return nil }
             return try? PropertyListDecoder().decode(
                 [String: CachedTrackInfo].self,
