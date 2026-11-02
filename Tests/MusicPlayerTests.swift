@@ -100,12 +100,14 @@ struct PlayerQueueTests {
     }
 
     private func makeEngine(
-        failingNames: Set<String> = []
+        failingNames: Set<String> = [],
+        configureError: Error? = nil
     ) -> (PlayerEngine, FakePlayerFactory, FakeAudioSession, UserDefaults) {
         let suiteName = "MusicPlayerTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!
         defaults.removePersistentDomain(forName: suiteName)
         let session = FakeAudioSession()
+        session.configureError = configureError
         let factory = FakePlayerFactory(failingNames: failingNames)
         let recent = RecentlyPlayedStore(defaults: defaults)
         let engine = PlayerEngine(
@@ -212,6 +214,28 @@ struct PlayerQueueTests {
 
         #expect(engine.isPlaying == false)
         #expect(engine.lastError == .audioSessionFailed)
+    }
+
+    @Test func audioSessionIsConfiguredOnPlaybackNotAtLaunch() {
+        let (engine, _, _, _) = makeEngine(configureError: TestError.failed)
+        defer { engine.shutdown() }
+        #expect(engine.lastError == nil)
+
+        engine.play(track: makeTrack("a"))
+        #expect(engine.lastError == .audioSessionFailed)
+    }
+
+    @Test func audioSessionFailureDoesNotLoadEveryTrack() {
+        let (engine, factory, session, _) = makeEngine()
+        defer { engine.shutdown() }
+        session.activationError = TestError.failed
+
+        engine.play(tracks: (1...5).map { makeTrack("t\($0)") }, startAt: 0)
+
+        #expect(engine.isPlaying == false)
+        #expect(engine.lastError == .audioSessionFailed)
+        #expect(factory.players.isEmpty)
+        #expect(engine.currentTrack?.title == "t1")
     }
 
     @Test func enqueueAndClearUpcoming() {

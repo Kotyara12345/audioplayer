@@ -121,6 +121,7 @@ final class PlayerEngine: NSObject {
     @ObservationIgnored private var wasPlayingBeforeInterruption = false
     @ObservationIgnored private var playbackGeneration = 0
     @ObservationIgnored private var progressTick = 0
+    @ObservationIgnored private var isAudioSessionConfigured = false
 
     var isPlaying = false
     var currentTime: TimeInterval = 0
@@ -158,7 +159,6 @@ final class PlayerEngine: NSObject {
         self.playerFactory = playerFactory
         super.init()
         loadSettings()
-        setupAudioSessionCategory()
         setupRemoteCommands()
         setupNotifications()
     }
@@ -191,25 +191,21 @@ final class PlayerEngine: NSObject {
 
     // MARK: - Audio session
 
-    private func setupAudioSessionCategory() {
-        do {
-            try audioSession.configurePlayback()
-        } catch {
-            log.error(
-                "Audio session category error: \(error.localizedDescription, privacy: .public)"
-            )
-            lastError = .audioSessionFailed
-        }
-    }
-
+    /// Configures the category on first use, then activates the session.
+    /// Category setup can fail transiently while the app is launching, so it is
+    /// retried on every playback attempt instead of being reported once at launch.
     @discardableResult
     private func activateAudioSession() -> Bool {
         do {
+            if !isAudioSessionConfigured {
+                try audioSession.configurePlayback()
+                isAudioSessionConfigured = true
+            }
             try audioSession.setActive(true)
             return true
         } catch {
             log.error(
-                "Audio session activation error: \(error.localizedDescription, privacy: .public)"
+                "Audio session error: \(error.localizedDescription, privacy: .public)"
             )
             lastError = .audioSessionFailed
             return false
@@ -284,7 +280,7 @@ final class PlayerEngine: NSObject {
     @objc nonisolated private func handleMediaReset(_ notification: Notification) {
         Task { @MainActor [weak self] in
             guard let self else { return }
-            self.setupAudioSessionCategory()
+            self.isAudioSessionConfigured = false
             self.teardownRemoteCommands()
             self.setupRemoteCommands()
 
@@ -366,6 +362,12 @@ final class PlayerEngine: NSObject {
             return false
         }
 
+        // A session failure is not track-specific: abort before loading a file.
+        guard activateAudioSession() else {
+            clearNowPlayingInfo()
+            return false
+        }
+
         do {
             let player = try playerFactory(track.url)
             player.onPlaybackFinished = { [weak self] in
@@ -419,6 +421,9 @@ final class PlayerEngine: NSObject {
                 updateRemoteCommandAvailability()
                 return true
             }
+            // When the audio session cannot be activated, every remaining track
+            // fails the same way. Loading them all would stall the main thread.
+            if lastError == .audioSessionFailed { break }
         }
 
         audioPlayer?.onPlaybackFinished = nil
