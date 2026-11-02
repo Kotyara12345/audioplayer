@@ -86,8 +86,7 @@ final class MusicLibraryManager {
         // false even though the folder is readable.
         guard accessStarted || FileManager.default.isReadableFile(atPath: url.path) else {
             log.error(
-                "Folder access denied, scope: \(accessStarted, privacy: .public), "
-                    + "path: \(url.path, privacy: .private)"
+                "Folder access denied, scope: \(accessStarted, privacy: .public), path: \(url.path, privacy: .private)"
             )
             lastError = .folderAccessDenied
             return
