@@ -89,8 +89,12 @@ private final class FakePlayerFactory {
 @MainActor
 struct PlayerQueueTests {
     private func makeTrack(_ name: String, cloudOnly: Bool = false) -> Track {
-        Track(
-            url: URL(fileURLWithPath: "/tmp/\(name).mp3"),
+        let url = testTracksDirectory.appendingPathComponent("\(name).mp3")
+        if !cloudOnly, !FileManager.default.fileExists(atPath: url.path) {
+            _ = FileManager.default.createFile(atPath: url.path, contents: Data())
+        }
+        return Track(
+            url: url,
             title: name,
             artist: "",
             album: "",
@@ -536,6 +540,16 @@ struct RecentlyPlayedTests {
         #expect(store.recentURLs == [a, b])
     }
 }
+
+private let testTracksDirectory: URL = {
+    let directory = FileManager.default.temporaryDirectory
+        .appendingPathComponent("MusicPlayerTestTracks", isDirectory: true)
+    try? FileManager.default.createDirectory(
+        at: directory,
+        withIntermediateDirectories: true
+    )
+    return directory
+}()
 
 private func makeTemporaryDirectory() -> URL {
     let directory = FileManager.default.temporaryDirectory

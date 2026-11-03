@@ -372,11 +372,15 @@ final class PlayerEngine: NSObject {
         playbackGeneration &+= 1
         let generation = playbackGeneration
 
-        guard !track.isCloudOnly, Self.hasLocalContent(at: track.url) else {
+        guard Self.hasLocalContent(at: track.url) else {
             lastError = .cloudFileNotDownloaded(filename: track.title)
             clearNowPlayingInfo()
             return false
         }
+
+        // Configure the category before AVAudioPlayer prepares its queue, so the
+        // audio unit is not built against the default category.
+        activateAudioSession()
 
         do {
             let player = try playerFactory(track.url)
@@ -410,9 +414,10 @@ final class PlayerEngine: NSObject {
         }
     }
 
-    /// Returns false only for a known iCloud placeholder. If resource values
-    /// cannot be read, playback is attempted and reports its own error.
+    /// Returns false for a missing file or a known iCloud placeholder. The live
+    /// download status is used, so a file downloaded after the scan can play.
     nonisolated private static func hasLocalContent(at url: URL) -> Bool {
+        guard FileManager.default.fileExists(atPath: url.path) else { return false }
         guard let values = try? url.resourceValues(forKeys: [
             .isUbiquitousItemKey,
             .ubiquitousItemDownloadingStatusKey
@@ -705,7 +710,15 @@ final class PlayerEngine: NSObject {
             while !Task.isCancelled {
                 guard let self, let player = self.audioPlayer else { return }
                 self.currentTime = player.currentTime
-                guard player.isPlaying else { return }
+                guard player.isPlaying else {
+                    // The player stopped without a delegate callback (route or
+                    // hardware loss). Do not keep claiming playback.
+                    if !Task.isCancelled {
+                        self.isPlaying = false
+                        self.updateNowPlayingInfo()
+                    }
+                    return
+                }
 
                 self.progressTick &+= 1
                 if self.progressTick.isMultiple(of: 10) {
