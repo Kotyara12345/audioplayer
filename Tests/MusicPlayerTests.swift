@@ -63,6 +63,7 @@ private final class FakeAudioSession: AudioSessionControlling {
 private final class FakePlayerFactory {
     private let failingNames: Set<String>
     private(set) var players: [String: FakeAudioPlayer] = [:]
+    var playSucceeds = true
 
     init(failingNames: Set<String> = []) {
         self.failingNames = failingNames
@@ -74,6 +75,7 @@ private final class FakePlayerFactory {
             throw TestError.failed
         }
         let player = FakeAudioPlayer()
+        player.playSucceeds = playSucceeds
         players[name] = player
         return player
     }
@@ -206,9 +208,10 @@ struct PlayerQueueTests {
     }
 
     @Test func audioSessionFailureStopsPlayback() {
-        let (engine, _, session, _) = makeEngine()
+        let (engine, factory, session, _) = makeEngine()
         defer { engine.shutdown() }
         session.activationError = TestError.failed
+        factory.playSucceeds = false
 
         engine.play(track: makeTrack("a"))
 
@@ -216,10 +219,22 @@ struct PlayerQueueTests {
         #expect(engine.lastError == .audioSessionFailed)
     }
 
+    @Test func audioSessionFailureStillPlaysWithDefaultCategory() {
+        let (engine, _, session, _) = makeEngine()
+        defer { engine.shutdown() }
+        session.activationError = TestError.failed
+
+        engine.play(track: makeTrack("a"))
+
+        #expect(engine.isPlaying)
+        #expect(engine.lastError == nil)
+    }
+
     @Test func audioSessionIsConfiguredOnPlaybackNotAtLaunch() {
-        let (engine, _, _, _) = makeEngine(configureError: TestError.failed)
+        let (engine, factory, _, _) = makeEngine(configureError: TestError.failed)
         defer { engine.shutdown() }
         #expect(engine.lastError == nil)
+        factory.playSucceeds = false
 
         engine.play(track: makeTrack("a"))
         #expect(engine.lastError == .audioSessionFailed)
@@ -229,12 +244,13 @@ struct PlayerQueueTests {
         let (engine, factory, session, _) = makeEngine()
         defer { engine.shutdown() }
         session.activationError = TestError.failed
+        factory.playSucceeds = false
 
         engine.play(tracks: (1...5).map { makeTrack("t\($0)") }, startAt: 0)
 
         #expect(engine.isPlaying == false)
         #expect(engine.lastError == .audioSessionFailed)
-        #expect(factory.players.isEmpty)
+        #expect(factory.players.count == 1)
         #expect(engine.currentTrack?.title == "t1")
     }
 

@@ -201,11 +201,20 @@ final class PlayerEngine: NSObject {
                 try audioSession.configurePlayback()
                 isAudioSessionConfigured = true
             }
+        } catch {
+            log.error(
+                "Audio session category error: \((error as NSError).code, privacy: .public)"
+            )
+            lastError = .audioSessionFailed
+            return false
+        }
+
+        do {
             try audioSession.setActive(true)
             return true
         } catch {
             log.error(
-                "Audio session error: \(error.localizedDescription, privacy: .public)"
+                "Audio session activation error: \((error as NSError).code, privacy: .public)"
             )
             lastError = .audioSessionFailed
             return false
@@ -362,12 +371,6 @@ final class PlayerEngine: NSObject {
             return false
         }
 
-        // A session failure is not track-specific: abort before loading a file.
-        guard activateAudioSession() else {
-            clearNowPlayingInfo()
-            return false
-        }
-
         do {
             let player = try playerFactory(track.url)
             player.onPlaybackFinished = { [weak self] in
@@ -447,11 +450,10 @@ final class PlayerEngine: NSObject {
             updateRemoteCommandAvailability()
             return
         }
-        guard activateAudioSession() else {
-            isPlaying = false
-            updateNowPlayingInfo()
-            return
-        }
+        // Keep playing even if the session cannot be configured: the player may
+        // still start with the default category. The error is reported only when
+        // playback itself fails.
+        let sessionReady = activateAudioSession()
 
         if player.duration > 0, player.currentTime >= player.duration - 0.05 {
             player.currentTime = 0
@@ -466,7 +468,10 @@ final class PlayerEngine: NSObject {
         } else {
             log.error("AVAudioPlayer refused to start \(track.title, privacy: .public)")
             isPlaying = false
-            lastError = .playbackFailed(filename: track.title)
+            // Without a working session the failure is not about this file.
+            lastError = sessionReady
+                ? .playbackFailed(filename: track.title)
+                : .audioSessionFailed
             updateNowPlayingInfo()
         }
         updateRemoteCommandAvailability()
