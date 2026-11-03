@@ -13,11 +13,18 @@ protocol AudioSessionControlling: AnyObject {
 @MainActor
 final class AudioSessionController: AudioSessionControlling {
     func configurePlayback() throws {
-        try AVAudioSession.sharedInstance().setCategory(
-            .playback,
-            mode: .default,
-            options: [.allowAirPlay, .allowBluetoothA2DP]
-        )
+        let session = AVAudioSession.sharedInstance()
+        do {
+            try session.setCategory(
+                .playback,
+                mode: .default,
+                options: [.allowAirPlay, .allowBluetoothA2DP]
+            )
+        } catch {
+            // The app still needs background playback if a device rejects the
+            // optional routes, so retry with the plain category.
+            try session.setCategory(.playback, mode: .default)
+        }
     }
 
     func setActive(_ active: Bool) throws {
